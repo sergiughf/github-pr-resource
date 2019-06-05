@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"path"
 	"strconv"
 	"strings"
 
@@ -272,7 +271,7 @@ func (m *GithubClient) UpdateCommitStatus(commitRef, baseContext, statusContext,
 			State:       github.String(strings.ToLower(status)),
 			TargetURL:   github.String(targetURL),
 			Description: github.String(description),
-			Context:     github.String(path.Join(baseContext, statusContext)),
+			Context:     github.String(strings.Join([]string{baseContext, statusContext}, "/")),
 		},
 	)
 	return err
