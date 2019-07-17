@@ -97,57 +97,79 @@ func NewGithubClient(s *Source) (*GithubClient, error) {
 }
 
 // ListOpenPullRequests gets the last commit on all open pull requests.
-func (m *GithubClient) ListOpenPullRequests() ([]*PullRequest, error) {
-	var query struct {
-		Repository struct {
-			PullRequests struct {
-				Edges []struct {
-					Node struct {
-						PullRequestObject
-						Commits struct {
-							Edges []struct {
-								Node struct {
-									Commit CommitObject
+func (m *GithubClient) ListOpenPullRequests() (response []*PullRequest, err error) {
+	var (
+		query struct {
+			Repository struct {
+				PullRequests struct {
+					Edges []struct {
+						Node struct {
+							PullRequestObject
+							Commits struct {
+								Edges []struct {
+									Node struct {
+										Commit CommitObject
+									}
 								}
-							}
-						} `graphql:"commits(last:$commitsLast)"`
+							} `graphql:"commits(last:$commitsLast)"`
+							Labels struct {
+								Edges []struct {
+									Node struct {
+										LabelObject
+									}
+								}
+							} `graphql:"labels(first:$labelsFirst)"`
+						}
 					}
-				}
-				PageInfo struct {
-					EndCursor   githubv4.String
-					HasNextPage bool
-				}
-			} `graphql:"pullRequests(first:$prFirst,states:$prStates,after:$prCursor)"`
-		} `graphql:"repository(owner:$repositoryOwner,name:$repositoryName)"`
-	}
+					PageInfo struct {
+						EndCursor   githubv4.String
+						HasNextPage bool
+					}
+				} `graphql:"pullRequests(first:$prFirst,states:$prStates,after:$prCursor)"`
+			} `graphql:"repository(owner:$repositoryOwner,name:$repositoryName)"`
+		}
 
-	vars := map[string]interface{}{
-		"repositoryOwner": githubv4.String(m.Owner),
-		"repositoryName":  githubv4.String(m.Repository),
-		"prFirst":         githubv4.Int(100),
-		"prStates":        []githubv4.PullRequestState{githubv4.PullRequestStateOpen},
-		"prCursor":        (*githubv4.String)(nil),
-		"commitsLast":     githubv4.Int(1),
-	}
+		queryVars = map[string]interface{}{
+			"repositoryOwner": githubv4.String(m.Owner),
+			"repositoryName":  githubv4.String(m.Repository),
+			"prFirst":         githubv4.Int(100),
+			"prStates":        []githubv4.PullRequestState{githubv4.PullRequestStateOpen},
+			"prCursor":        (*githubv4.String)(nil),
+			"commitsLast":     githubv4.Int(1),
+			"labelsFirst":     githubv4.Int(10),
+		}
+	)
 
-	var response []*PullRequest
 	for {
-		if err := m.V4.Query(context.TODO(), &query, vars); err != nil {
+		if err = m.V4.Query(context.TODO(), &query, queryVars); err != nil {
 			return nil, err
 		}
+
 		for _, p := range query.Repository.PullRequests.Edges {
-			for _, c := range p.Node.Commits.Edges {
-				response = append(response, &PullRequest{
-					PullRequestObject: p.Node.PullRequestObject,
-					Tip:               c.Node.Commit,
-				})
+			// if the pull request has 0 commits then it gets automatically closed
+			if len(p.Node.Commits.Edges) == 0 {
+				continue
 			}
+
+			pr := &PullRequest{
+				PullRequestObject: p.Node.PullRequestObject,
+				Tip:               p.Node.Commits.Edges[0].Node.Commit,
+			}
+
+			for _, l := range p.Node.Labels.Edges {
+				pr.Labels = append(pr.Labels, l.Node.LabelObject)
+			}
+
+			response = append(response, pr)
 		}
+
 		if !query.Repository.PullRequests.PageInfo.HasNextPage {
 			break
 		}
-		vars["prCursor"] = query.Repository.PullRequests.PageInfo.EndCursor
+
+		queryVars["prCursor"] = query.Repository.PullRequests.PageInfo.EndCursor
 	}
+
 	return response, nil
 }
 
