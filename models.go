@@ -74,7 +74,8 @@ func NewVersion(p *PullRequest) Version {
 // PullRequest represents a pull request and includes the tip (commit).
 type PullRequest struct {
 	PullRequestObject
-	Tip CommitObject
+	Tip    CommitObject
+	Labels []LabelObject
 }
 
 // PullRequestObject represents the GraphQL commit node.
@@ -110,4 +111,13 @@ type CommitObject struct {
 // https://developer.github.com/v4/object/pullrequestchangedfile/
 type ChangedFileObject struct {
 	Path string
+}
+
+// LabelObject represents the GraphQL label node.
+// https://developer.github.com/v4/object/label
+type LabelObject struct {
+	Description string
+	ID          githubv4.ID
+	IsDefault   bool
+	Name        string
 }
