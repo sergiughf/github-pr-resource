@@ -127,7 +127,7 @@ func TestGet(t *testing.T) {
 			parameters: resource.GetParameters{
 				ListChangedFiles: true,
 			},
-			pullRequest: createTestPR(1, "master", false, false),
+			pullRequest: createTestPR(1, "master", false, false, nil),
 			files: []resource.ChangedFileObject{
 				{
 					Path: "README.md",
@@ -137,7 +137,7 @@ func TestGet(t *testing.T) {
 				},
 			},
 			versionString:  `{"pr":"pr1","commit":"commit1","committed":"0001-01-01T00:00:00Z"}`,
-			metadataString: `[{"name":"pr","value":"1"},{"name":"url","value":"pr1 url"},{"name":"head_name","value":"pr1"},{"name":"head_sha","value":"oid1"},{"name":"base_name","value":"master"},{"name":"base_sha","value":"sha"},{"name":"message","value":"commit message1"},{"name":"author","value":"login1"}]`,
+			metadataString: `[{"name":"pr","value":"1"},{"name":"url","value":"pr1 url"},{"name":"head_name","value":"pr1"},{"name":"head_sha","value":"oid1"},{"name":"base_name","value":"master"},{"name":"base_sha","value":"sha"},{"name":"message","value":"commit message1"},{"name":"author","value":"login1"},{"name":"labels","value":""}]`,
 			filesString:    "README.md\nOther.md\n",
 		},
 	}
