@@ -307,10 +307,10 @@ func createTestPR(count int, baseName string, skipCI bool, isCrossRepo bool, lab
 	var labelObjects []resource.LabelObject
 	for _, l := range labels {
 		lObject := resource.LabelObject{
-			Name: l,
-			ID:  fmt.Sprintf("lb%s", n),
+			Name:        l,
+			ID:          fmt.Sprintf("lb%s", n),
 			Description: l,
-			IsDefault: false,
+			IsDefault:   false,
 		}
 
 		labelObjects = append(labelObjects, lObject)
