@@ -38,6 +38,26 @@ Loop:
 			continue
 		}
 
+		// Filter out pull request if it does not contain the desired labels
+		if len(request.Source.Labels) > 0 {
+			labelFound := false
+
+		LabelLoop:
+			for _, wantedLabel := range request.Source.Labels {
+				for _, targetLabel := range p.Labels {
+					if targetLabel.Name == wantedLabel {
+						labelFound = true
+						break LabelLoop
+					}
+				}
+			}
+
+			if !labelFound {
+				continue
+			}
+		}
+
+		// Filter out forks.
 		if request.Source.DisableForks && p.IsCrossRepository {
 			continue
 		}
@@ -80,6 +100,7 @@ Loop:
 				continue Loop
 			}
 		}
+
 		response = append(response, NewVersion(p))
 	}
 

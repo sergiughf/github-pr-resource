@@ -10,13 +10,13 @@ import (
 
 var (
 	testPullRequests = []*resource.PullRequest{
-		createTestPR(1, "master", true, false),
-		createTestPR(2, "master", false, false),
-		createTestPR(3, "master", false, false),
-		createTestPR(4, "master", false, false),
-		createTestPR(5, "master", false, true),
-		createTestPR(6, "master", false, false),
-		createTestPR(7, "develop", false, false),
+		createTestPR(1, "master", true, false, []string{"bug"}),
+		createTestPR(2, "master", false, false, []string{"duplicate"}),
+		createTestPR(3, "master", false, false, []string{"bug", "good first issue"}),
+		createTestPR(4, "master", false, false, []string{"bug"}),
+		createTestPR(5, "master", false, true, []string{"invalid"}),
+		createTestPR(6, "master", false, false, []string{"wontfix"}),
+		createTestPR(7, "develop", false, false, []string{"help wanted"}),
 	}
 )
 
