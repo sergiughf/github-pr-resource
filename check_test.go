@@ -13,9 +13,9 @@ var (
 		createTestPR(1, "master", true, false, []string{"bug"}),
 		createTestPR(2, "master", false, false, []string{"duplicate"}),
 		createTestPR(3, "master", false, false, []string{"bug", "good first issue"}),
-		createTestPR(4, "master", false, false, []string{"bug"}),
+		createTestPR(4, "master", false, false, nil),
 		createTestPR(5, "master", false, true, []string{"invalid"}),
-		createTestPR(6, "master", false, false, []string{"wontfix"}),
+		createTestPR(6, "master", false, false, nil),
 		createTestPR(7, "develop", false, false, []string{"help wanted"}),
 	}
 )
